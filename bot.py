@@ -117,6 +117,42 @@ async def serversettings_slash(interaction: nextcord.Interaction):
     else:
         await interaction.response.send_message(f'```json\n{server_settings_json}\n```')
 
+@bot.slash_command(name='backup', description='Backup the server settings')
+async def backup_slash(interaction: nextcord.Interaction):
+    guild = interaction.guild
+    server_settings = {
+        'name': guild.name,
+        'id': guild.id,
+        'member_count': guild.member_count,
+        'roles': [role.name for role in guild.roles],
+        'channels': [channel.name for channel in guild.channels],
+        'owner_id': guild.owner_id,
+        'owner': guild.owner,
+        'created_at': str(guild.created_at),
+        'icon_url': str(guild.icon)  # Use 'icon' instead of 'icon_url'
+    }
+    backup_filename = f'backup_{guild.id}.json'
+    with open(backup_filename, 'w') as backup_file:
+        json.dump(server_settings, backup_file, indent=2)
+    await interaction.response.send_message(f'Server settings have been backed up to {backup_filename}')
+
+@bot.slash_command(name='restore', description='Restore the server settings from a backup')
+async def restore_slash(interaction: nextcord.Interaction, backup_filename: str):
+    try:
+        with open(backup_filename, 'r') as backup_file:
+            server_settings = json.load(backup_file)
+        
+        # Restore server settings (this is a simplified example, actual restoration may require more steps)
+        guild = interaction.guild
+        await guild.edit(name=server_settings['name'])
+        # Note: Restoring roles and channels would require more detailed handling
+
+        await interaction.response.send_message(f'Server settings have been restored from {backup_filename}')
+    except FileNotFoundError:
+        await interaction.response.send_message(f'Backup file {backup_filename} not found')
+    except Exception as e:
+        await interaction.response.send_message(f'An error occurred while restoring the backup: {e}')
+
 @bot.event
 async def on_message(message):
     if message.author == bot.user:
