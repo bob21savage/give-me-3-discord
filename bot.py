@@ -59,7 +59,8 @@ if __name__ == "__main__":
     intents.message_content = True  # Enable message content intent
     intents.members = True  # Enable member intents
 
-    bot = commands.Bot(command_prefix='!', intents=intents)
+    # Initialize the bot with the application ID
+    bot = commands.Bot(command_prefix='/', intents=intents, application_id=1285549408087310408)
 
     patterns = [
         r'^.*([A-Za-z0-9]+( [A-Za-z0-9]+)+).*[A-Za-z]+.*$',
