@@ -24,7 +24,8 @@ if DISCORD_TOKEN is None:
 # Define intents
 intents = nextcord.Intents.default()
 intents.messages = True
-intents.message_content = True
+intents.message_content = False  # Disable message content intent
+intents.members = False  # Disable member intents
 
 # Initialize the bot
 APPLICATION_ID = '1285549408087310408'
