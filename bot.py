@@ -79,7 +79,6 @@ if __name__ == "__main__":
 
     @bot.event
     async def on_message(message):
-        # Ignore messages from the bot itself
         if message.author == bot.user:
             return
 
@@ -104,7 +103,7 @@ if __name__ == "__main__":
         except Exception as e:
             print(f'Error timing out {message.author}: {e}')
 
-        await bot.process_commands(message)  # Process other commands if any
+        await bot.process_commands(message)  # Ensure commands are processed
 
     @bot.command(name='ping')
     async def ping(ctx):
@@ -112,24 +111,52 @@ if __name__ == "__main__":
 
     @bot.command(name='botinfo')
     async def botinfo(ctx):
+        print("Botinfo command triggered")  # Debug print
         bot_info = {
             'username': bot.user.username,
             'id': bot.user.id,
             'created_at': str(bot.user.created_at),
-            'guilds': [guild.name for guild in bot.guilds]
+            'guilds': [guild.name for guild in bot.guilds],
+            'prefix': bot.command_prefix,
+            'description': bot.description,
+            'owner_id': bot.owner_id,
+            'owner': bot.owner,
+            'latency': bot.latency
         }
-        await ctx.send(f'```json\n{json.dumps(bot_info, indent=2)}\n```')
+        await ctx.send(json.dumps(bot_info, indent=2))
 
     @bot.command(name='serversettings')
     async def serversettings(ctx):
+        print("Serversettings command triggered")  # Debug print
         guild = ctx.guild
         server_settings = {
             'name': guild.name,
             'id': guild.id,
             'member_count': guild.member_count,
             'roles': [role.name for role in guild.roles],
-            'channels': [channel.name for channel in guild.channels]
+            'channels': [channel.name for channel in guild.channels],
+            'owner_id': guild.owner_id,
+            'owner': guild.owner,
+            'created_at': str(guild.created_at),
+            'icon_url': str(guild.icon_url),
+            'banner_url': str(guild.banner_url),
+            'splash_url': str(guild.splash_url),
+            'description': guild.description,
+            'region': guild.region,
+            'afk_channel': guild.afk_channel,
+            'system_channel': guild.system_channel,
+            'rules_channel': guild.rules_channel,
+            'public_updates_channel': guild.public_updates_channel,
+            'preferred_locale': guild.preferred_locale,
+            'premium_tier': guild.premium_tier,
+            'premium_subscription_count': guild.premium_subscription_count,
+            'features': guild.features,
+            'max_members': guild.max_members,
+            'max_video_channel_users': guild.max_video_channel_users,
+            'max_presences': guild.max_presences,
+            'approximate_member_count': guild.approximate_member_count,
+            'approximate_presence_count': guild.approximate_presence_count
         }
-        await ctx.send(f'```json\n{json.dumps(server_settings, indent=2)}\n```')
+        await ctx.send(json.dumps(server_settings, indent=2))
 
     bot.run(DISCORD_TOKEN)
