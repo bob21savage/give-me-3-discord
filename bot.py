@@ -197,6 +197,19 @@ if __name__ == "__main__":
             }
             await interaction.response.send_message(f'```json\n{json.dumps(server_settings, indent=2)}\n```')
 
+        @discord.app_commands.command(name='help', description='Shows available commands')
+        async def help_slash(self, interaction: discord.Interaction):
+            help_message = (
+                "Here are the commands you can use:\n"
+                "**Prefix Commands:**\n"
+                "!ping - Responds with Pong!\n"
+                "**Slash Commands:**\n"
+                "/ping - Responds with Pong!\n"
+                "/botinfo - Get information about the bot\n"
+                "/serversettings - Get information about the server"
+            )
+            await interaction.response.send_message(help_message)
+
     async def main():
         await bot.add_cog(GeneralCommands(bot))
         await bot.add_cog(SlashCommands(bot))
