@@ -6,7 +6,7 @@ import json
 from dotenv import load_dotenv  # Import dotenv to load environment variables
 import re
 from datetime import datetime, timedelta
-from flask import Flask
+from flask import Flask, render_template
 import asyncio
 
 # Load environment variables from .env file
@@ -38,7 +38,11 @@ app = Flask(__name__)
 
 @app.route('/')
 def home():
-    return 'Hello, Flask is running!'
+    return render_template('index.html')  # Render the index.html file
+
+@app.route('/index')
+def index():
+    return render_template('index.html')  # Additional route for index if needed
 
 async def start_flask():
     port = int(os.environ.get('PORT', 5000))  # Use PORT environment variable
