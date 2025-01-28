@@ -6,6 +6,8 @@ import json
 from dotenv import load_dotenv  # Import dotenv to load environment variables
 import re
 from datetime import datetime, timedelta
+from flask import Flask
+import threading
 
 # Load environment variables from .env file
 load_dotenv()
@@ -30,6 +32,12 @@ intents.members = False  # Disable member intents
 # Initialize the bot
 APPLICATION_ID = '1285549408087310408'
 bot = commands.Bot(command_prefix='/', intents=intents, application_id=APPLICATION_ID)
+
+app = Flask(__name__)
+
+@app.route('/')
+def home():
+    return 'Hello, Flask is running on port 1500!'
 
 @bot.event
 async def on_ready():
@@ -130,6 +138,7 @@ async def on_message(message):
 async def main():
     logging.info("Starting bot...")  # Debug print
     try:
+        threading.Thread(target=app.run, kwargs={'port': 1500}).start()
         await bot.start(DISCORD_TOKEN)
     except Exception as e:
         logging.error(f'Error starting bot: {e}')
