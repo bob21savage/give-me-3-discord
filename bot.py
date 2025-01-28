@@ -1,5 +1,5 @@
-import discord
-from discord.ext import commands, tasks
+import nextcord
+from nextcord.ext import commands, tasks
 import logging
 import os
 import asyncio
@@ -14,7 +14,7 @@ DISCORD_TOKEN = os.getenv('DISCORD_TOKEN')
 logging.basicConfig(level=logging.DEBUG)
 
 # Define intents
-intents = discord.Intents.default()
+intents = nextcord.Intents.default()
 intents.messages = True
 intents.message_content = True
 intents.members = True
@@ -99,16 +99,16 @@ class SlashCommands(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @discord.app_commands.command(name='ping', description='Responds with Pong!')
-    async def ping_slash(self, interaction: discord.Interaction):
+    @nextcord.app_commands.command(name='ping', description='Responds with Pong!')
+    async def ping_slash(self, interaction: nextcord.Interaction):
         logging.info("Ping slash command received")  # Debug print
         try:
             await interaction.response.send_message('Pong!')
         except Exception as e:
             logging.error(f'Error sending ping response: {e}')
 
-    @discord.app_commands.command(name='botinfo', description='Get information about the bot')
-    async def botinfo_slash(self, interaction: discord.Interaction):
+    @nextcord.app_commands.command(name='botinfo', description='Get information about the bot')
+    async def botinfo_slash(self, interaction: nextcord.Interaction):
         logging.info("Botinfo command triggered")  # Debug print
         bot_info = {
             'username': self.bot.user.username,
@@ -126,8 +126,8 @@ class SlashCommands(commands.Cog):
         except Exception as e:
             logging.error(f'Error sending bot info: {e}')
 
-    @discord.app_commands.command(name='serversettings', description='Get information about the server')
-    async def serversettings_slash(self, interaction: discord.Interaction):
+    @nextcord.app_commands.command(name='serversettings', description='Get information about the server')
+    async def serversettings_slash(self, interaction: nextcord.Interaction):
         logging.info("Serversettings command triggered")  # Debug print
         guild = interaction.guild
         server_settings = {
