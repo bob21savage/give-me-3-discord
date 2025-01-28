@@ -105,112 +105,123 @@ if __name__ == "__main__":
 
         await bot.process_commands(message)  # Ensure commands are processed
 
-    @bot.command(name='ping')
-    async def ping(ctx):
-        await ctx.send('Pong!')
+    class GeneralCommands(commands.Cog):
+        def __init__(self, bot):
+            self.bot = bot
 
-    @bot.slash_command(name='ping', description='Responds with Pong!')
-    async def ping_slash(ctx):
-        await ctx.respond('Pong!')
+        @commands.command(name='ping')
+        async def ping(self, ctx):
+            await ctx.send('Pong!')
 
-    @bot.command(name='botinfo')
-    async def botinfo(ctx):
-        print("Botinfo command triggered")  # Debug print
-        bot_info = {
-            'username': bot.user.username,
-            'id': bot.user.id,
-            'created_at': str(bot.user.created_at),
-            'guilds': [guild.name for guild in bot.guilds],
-            'prefix': bot.command_prefix,
-            'description': bot.description,
-            'owner_id': bot.owner_id,
-            'owner': bot.owner,
-            'latency': bot.latency
-        }
-        await ctx.send(f'```json\n{json.dumps(bot_info, indent=2)}\n```')
+        @commands.command(name='botinfo')
+        async def botinfo(self, ctx):
+            print("Botinfo command triggered")  # Debug print
+            bot_info = {
+                'username': self.bot.user.username,
+                'id': self.bot.user.id,
+                'created_at': str(self.bot.user.created_at),
+                'guilds': [guild.name for guild in self.bot.guilds],
+                'prefix': self.bot.command_prefix,
+                'description': self.bot.description,
+                'owner_id': self.bot.owner_id,
+                'owner': self.bot.owner,
+                'latency': self.bot.latency
+            }
+            await ctx.send(f'```json\n{json.dumps(bot_info, indent=2)}\n```')
 
-    @bot.slash_command(name='botinfo', description='Get information about the bot')
-    async def botinfo_slash(ctx):
-        print("Botinfo command triggered")  # Debug print
-        bot_info = {
-            'username': bot.user.username,
-            'id': bot.user.id,
-            'created_at': str(bot.user.created_at),
-            'guilds': [guild.name for guild in bot.guilds],
-            'prefix': bot.command_prefix,
-            'description': bot.description,
-            'owner_id': bot.owner_id,
-            'owner': bot.owner,
-            'latency': bot.latency
-        }
-        await ctx.respond(f'```json\n{json.dumps(bot_info, indent=2)}\n```')
+        @commands.command(name='serversettings')
+        async def serversettings(self, ctx):
+            print("Serversettings command triggered")  # Debug print
+            guild = ctx.guild
+            server_settings = {
+                'name': guild.name,
+                'id': guild.id,
+                'member_count': guild.member_count,
+                'roles': [role.name for role in guild.roles],
+                'channels': [channel.name for channel in guild.channels],
+                'owner_id': guild.owner_id,
+                'owner': guild.owner,
+                'created_at': str(guild.created_at),
+                'icon_url': str(guild.icon_url),
+                'banner_url': str(guild.banner_url),
+                'splash_url': str(guild.splash_url),
+                'description': guild.description,
+                'region': guild.region,
+                'afk_channel': guild.afk_channel,
+                'system_channel': guild.system_channel,
+                'rules_channel': guild.rules_channel,
+                'public_updates_channel': guild.public_updates_channel,
+                'preferred_locale': guild.preferred_locale,
+                'premium_tier': guild.premium_tier,
+                'premium_subscription_count': guild.premium_subscription_count,
+                'features': guild.features,
+                'max_members': guild.max_members,
+                'max_video_channel_users': guild.max_video_channel_users,
+                'max_presences': guild.max_presences,
+                'approximate_member_count': guild.approximate_member_count,
+                'approximate_presence_count': guild.approximate_presence_count
+            }
+            await ctx.send(f'```json\n{json.dumps(server_settings, indent=2)}\n```')
 
-    @bot.command(name='serversettings')
-    async def serversettings(ctx):
-        print("Serversettings command triggered")  # Debug print
-        guild = ctx.guild
-        server_settings = {
-            'name': guild.name,
-            'id': guild.id,
-            'member_count': guild.member_count,
-            'roles': [role.name for role in guild.roles],
-            'channels': [channel.name for channel in guild.channels],
-            'owner_id': guild.owner_id,
-            'owner': guild.owner,
-            'created_at': str(guild.created_at),
-            'icon_url': str(guild.icon_url),
-            'banner_url': str(guild.banner_url),
-            'splash_url': str(guild.splash_url),
-            'description': guild.description,
-            'region': guild.region,
-            'afk_channel': guild.afk_channel,
-            'system_channel': guild.system_channel,
-            'rules_channel': guild.rules_channel,
-            'public_updates_channel': guild.public_updates_channel,
-            'preferred_locale': guild.preferred_locale,
-            'premium_tier': guild.premium_tier,
-            'premium_subscription_count': guild.premium_subscription_count,
-            'features': guild.features,
-            'max_members': guild.max_members,
-            'max_video_channel_users': guild.max_video_channel_users,
-            'max_presences': guild.max_presences,
-            'approximate_member_count': guild.approximate_member_count,
-            'approximate_presence_count': guild.approximate_presence_count
-        }
-        await ctx.send(f'```json\n{json.dumps(server_settings, indent=2)}\n```')
+    class SlashCommands(commands.Cog):
+        def __init__(self, bot):
+            self.bot = bot
 
-    @bot.slash_command(name='serversettings', description='Get information about the server')
-    async def serversettings_slash(ctx):
-        print("Serversettings command triggered")  # Debug print
-        guild = ctx.guild
-        server_settings = {
-            'name': guild.name,
-            'id': guild.id,
-            'member_count': guild.member_count,
-            'roles': [role.name for role in guild.roles],
-            'channels': [channel.name for channel in guild.channels],
-            'owner_id': guild.owner_id,
-            'owner': guild.owner,
-            'created_at': str(guild.created_at),
-            'icon_url': str(guild.icon_url),
-            'banner_url': str(guild.banner_url),
-            'splash_url': str(guild.splash_url),
-            'description': guild.description,
-            'region': guild.region,
-            'afk_channel': guild.afk_channel,
-            'system_channel': guild.system_channel,
-            'rules_channel': guild.rules_channel,
-            'public_updates_channel': guild.public_updates_channel,
-            'preferred_locale': guild.preferred_locale,
-            'premium_tier': guild.premium_tier,
-            'premium_subscription_count': guild.premium_subscription_count,
-            'features': guild.features,
-            'max_members': guild.max_members,
-            'max_video_channel_users': guild.max_video_channel_users,
-            'max_presences': guild.max_presences,
-            'approximate_member_count': guild.approximate_member_count,
-            'approximate_presence_count': guild.approximate_presence_count
-        }
-        await ctx.respond(f'```json\n{json.dumps(server_settings, indent=2)}\n```')
+        @discord.app_commands.command(name='ping', description='Responds with Pong!')
+        async def ping_slash(self, interaction: discord.Interaction):
+            await interaction.response.send_message('Pong!')
+
+        @discord.app_commands.command(name='botinfo', description='Get information about the bot')
+        async def botinfo_slash(self, interaction: discord.Interaction):
+            print("Botinfo command triggered")  # Debug print
+            bot_info = {
+                'username': self.bot.user.username,
+                'id': self.bot.user.id,
+                'created_at': str(self.bot.user.created_at),
+                'guilds': [guild.name for guild in self.bot.guilds],
+                'prefix': self.bot.command_prefix,
+                'description': self.bot.description,
+                'owner_id': self.bot.owner_id,
+                'owner': self.bot.owner,
+                'latency': self.bot.latency
+            }
+            await interaction.response.send_message(f'```json\n{json.dumps(bot_info, indent=2)}\n```')
+
+        @discord.app_commands.command(name='serversettings', description='Get information about the server')
+        async def serversettings_slash(self, interaction: discord.Interaction):
+            print("Serversettings command triggered")  # Debug print
+            guild = interaction.guild
+            server_settings = {
+                'name': guild.name,
+                'id': guild.id,
+                'member_count': guild.member_count,
+                'roles': [role.name for role in guild.roles],
+                'channels': [channel.name for channel in guild.channels],
+                'owner_id': guild.owner_id,
+                'owner': guild.owner,
+                'created_at': str(guild.created_at),
+                'icon_url': str(guild.icon_url),
+                'banner_url': str(guild.banner_url),
+                'splash_url': str(guild.splash_url),
+                'description': guild.description,
+                'region': guild.region,
+                'afk_channel': guild.afk_channel,
+                'system_channel': guild.system_channel,
+                'rules_channel': guild.rules_channel,
+                'public_updates_channel': guild.public_updates_channel,
+                'preferred_locale': guild.preferred_locale,
+                'premium_tier': guild.premium_tier,
+                'premium_subscription_count': guild.premium_subscription_count,
+                'features': guild.features,
+                'max_members': guild.max_members,
+                'max_video_channel_users': guild.max_video_channel_users,
+                'max_presences': guild.max_presences,
+                'approximate_member_count': guild.approximate_member_count,
+                'approximate_presence_count': guild.approximate_presence_count
+            }
+            await interaction.response.send_message(f'```json\n{json.dumps(server_settings, indent=2)}\n```')
+
+    bot.add_cog(GeneralCommands(bot))
+    bot.add_cog(SlashCommands(bot))
 
     bot.run(DISCORD_TOKEN)
