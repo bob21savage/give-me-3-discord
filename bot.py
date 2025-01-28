@@ -1,27 +1,38 @@
 import nextcord
-from nextcord.ext import commands, tasks
+from nextcord.ext import commands
 import logging
 import os
-import asyncio
+import json
+from dotenv import load_dotenv  # Import dotenv to load environment variables
 import re
 from datetime import datetime, timedelta
-import json
+
+# Load environment variables from .env file
+load_dotenv()
+
+# Set up logging
+logging.basicConfig(level=logging.DEBUG)
 
 # Load the Discord token from the environment variable
 DISCORD_TOKEN = os.getenv('DISCORD_TOKEN')
 
-# Set up logging
-logging.basicConfig(level=logging.DEBUG)
+# Check if the token is loaded correctly
+if DISCORD_TOKEN is None:
+    logging.error('DISCORD_TOKEN is not set. Please check your .env file.')
+    exit(1)
 
 # Define intents
 intents = nextcord.Intents.default()
 intents.messages = True
 intents.message_content = True
-intents.members = True
 
-# Initialize the bot with the application ID
+# Initialize the bot
 APPLICATION_ID = '1285549408087310408'
 bot = commands.Bot(command_prefix='/', intents=intents, application_id=APPLICATION_ID)
+
+@bot.event
+async def on_ready():
+    logging.info(f'Logged in as {bot.user}')
 
 @bot.command()
 async def ping(ctx):
@@ -31,35 +42,55 @@ async def ping(ctx):
     except Exception as e:
         logging.error(f'Error sending ping response: {e}')
 
-@bot.command()
-async def index(ctx):
-    logging.info("Index command received")  # Debug print
-    with open('templates/index.html', 'r') as f:
-        content = f.read()
-    await ctx.send(content)
-
+# Define regex patterns
 patterns = [
     r'^.*([A-Za-z0-9]+( [A-Za-z0-9]+)+).*[A-Za-z]+.*$',
     r'^<#(\d{17,20})>$',
-    r'(\w+)\.?(dis(?:cord)?(?:app|merch|status)?)\.(com|g(?:d|g|ift)|(?:de(?:sign|v))|media|new|store|net)',
-    r'[a4]?+\s*[b8]+\s*c+\s*d+\s*[e3]?+\s*f+\s*g9]+\s*h+\s*[i1l]?+\s*j+\s*k+\s*[l1i]+\s*(m|nn|rn)+\s*n+\s*[o0]?+\s*p+\s*q+\s*r+\s*[s5]+\s*[t7]+\s*[uv]?+\s*v+\s*(w|vv|uu)+\s*x+\s*y+\s*z+\s*0+\s*9+\s*8+\s*7+\s*6+\s*5+\s*4+\s*3+\s*2+\s*1+',
+    r'(\w+)?\.?dis(?:cord)?(?:app|merch|status)?\.(com|g(?:d|g|ift)|(?:de(?:sign|v))|media|new|store|net)',
+    r'[a4]?+[b8]+c+d+[e3]?+f+g9]+h+[i1l]?+j+k+[l1i]+(m|nn|rn)+n+[o0]?+p+q+r+[s5]+[t7]+[uv]?+v+(w|vv|uu)+x+y+z+0+9+8+7+6+5+4+3+2+1+',
     r'^https?:\/\/',
     r'^<@&(\d{17,20})>$',
     r'^<@!?(\\d{17,20})>$',
     r'^wss?:\/\/',
     r'https:\/\/(?:(?:canary|ptb).)?discord(?:app)?.com\/api(?:\/v\d+)?\/webhooks\/(\d+)\/([\w-]+)\/?$',
-    r'[^\n\r\t\v\u0020\u00a0\u1680\u2000-\u200a\u2028\u2029\u202f\u205f\u3000\ufeff]',
-    r'<@!?(\d{17,20})>'  # Added regex for user mentions
+    r'[^\f\n\r\t\v\u0020\u00a0\u1680\u2000-\u200a\u2028\u2029\u202f\u205f\u3000\ufeff]',
+    r'<@!?\d{17,20}>'  # Added regex for user mentions
 ]
 
-@bot.event
-async def on_ready():
-    logging.info(f'Logged in as {bot.user}')
-    try:
-        await bot.tree.sync()  # Synchronize slash commands with Discord
-        logging.info("Slash commands synchronized.")
-    except Exception as e:
-        logging.error(f"Error synchronizing slash commands: {e}")
+@bot.slash_command(name='ping', description='Responds with Pong!')
+async def ping_slash(interaction: nextcord.Interaction):
+    await interaction.response.send_message('Pong!')
+
+@bot.slash_command(name='botinfo', description='Get information about the bot')
+async def botinfo_slash(interaction: nextcord.Interaction):
+    bot_info = {
+        'username': bot.user.username,
+        'id': bot.user.id,
+        'created_at': str(bot.user.created_at),
+        'guilds': [guild.name for guild in bot.guilds],
+        'prefix': bot.command_prefix,
+        'description': bot.description,
+        'owner_id': bot.owner_id,
+        'owner': bot.owner,
+        'latency': bot.latency
+    }
+    await interaction.response.send_message(f'```json\n{json.dumps(bot_info, indent=2)}\n```')
+
+@bot.slash_command(name='serversettings', description='Get information about the server')
+async def serversettings_slash(interaction: nextcord.Interaction):
+    guild = interaction.guild
+    server_settings = {
+        'name': guild.name,
+        'id': guild.id,
+        'member_count': guild.member_count,
+        'roles': [role.name for role in guild.roles],
+        'channels': [channel.name for channel in guild.channels],
+        'owner_id': guild.owner_id,
+        'owner': guild.owner,
+        'created_at': str(guild.created_at),
+        'icon_url': str(guild.icon_url)
+    }
+    await interaction.response.send_message(f'```json\n{json.dumps(server_settings, indent=2)}\n```')
 
 @bot.event
 async def on_message(message):
@@ -95,79 +126,9 @@ async def on_message(message):
 
     await bot.process_commands(message)  # Ensure commands are processed
 
-class SlashCommands(commands.Cog):
-    def __init__(self, bot):
-        self.bot = bot
-
-    @nextcord.app_commands.command(name='ping', description='Responds with Pong!')
-    async def ping_slash(self, interaction: nextcord.Interaction):
-        logging.info("Ping slash command received")  # Debug print
-        try:
-            await interaction.response.send_message('Pong!')
-        except Exception as e:
-            logging.error(f'Error sending ping response: {e}')
-
-    @nextcord.app_commands.command(name='botinfo', description='Get information about the bot')
-    async def botinfo_slash(self, interaction: nextcord.Interaction):
-        logging.info("Botinfo command triggered")  # Debug print
-        bot_info = {
-            'username': self.bot.user.username,
-            'id': self.bot.user.id,
-            'created_at': str(self.bot.user.created_at),
-            'guilds': [guild.name for guild in self.bot.guilds],
-            'prefix': self.bot.command_prefix,
-            'description': self.bot.description,
-            'owner_id': self.bot.owner_id,
-            'owner': self.bot.owner,
-            'latency': self.bot.latency
-        }
-        try:
-            await interaction.response.send_message(f'```json\n{json.dumps(bot_info, indent=2)}\n```')
-        except Exception as e:
-            logging.error(f'Error sending bot info: {e}')
-
-    @nextcord.app_commands.command(name='serversettings', description='Get information about the server')
-    async def serversettings_slash(self, interaction: nextcord.Interaction):
-        logging.info("Serversettings command triggered")  # Debug print
-        guild = interaction.guild
-        server_settings = {
-            'name': guild.name,
-            'id': guild.id,
-            'member_count': guild.member_count,
-            'roles': [role.name for role in guild.roles],
-            'channels': [channel.name for channel in guild.channels],
-            'owner_id': guild.owner_id,
-            'owner': guild.owner,
-            'created_at': str(guild.created_at),
-            'icon_url': str(guild.icon_url),
-            'banner_url': str(guild.banner_url),
-            'splash_url': str(guild.splash_url),
-            'description': guild.description,
-            'region': guild.region,
-            'afk_channel': guild.afk_channel,
-            'system_channel': guild.system_channel,
-            'rules_channel': guild.rules_channel,
-            'public_updates_channel': guild.public_updates_channel,
-            'preferred_locale': guild.preferred_locale,
-            'premium_tier': guild.premium_tier,
-            'premium_subscription_count': guild.premium_subscription_count,
-            'features': guild.features,
-            'max_members': guild.max_members,
-            'max_video_channel_users': guild.max_video_channel_users,
-            'max_presences': guild.max_presences,
-            'approximate_member_count': guild.approximate_member_count,
-            'approximate_presence_count': guild.approximate_presence_count
-        }
-        try:
-            await interaction.response.send_message(f'```json\n{json.dumps(server_settings, indent=2)}\n```')
-        except Exception as e:
-            logging.error(f'Error sending server settings: {e}')
-
 async def main():
     logging.info("Starting bot...")  # Debug print
     try:
-        await bot.add_cog(SlashCommands(bot))
-        await bot.tree.sync()  # Synchronize slash commands
         await bot.start(DISCORD_TOKEN)
     except Exception as e:
         logging.error(f'Error starting bot: {e}')

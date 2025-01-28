@@ -4,11 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Discord Bot - In Development</title>
-    <link rel="icon" href="{{ url_for("static", filename="favicon.ico") }}" type="image/x-icon">
+    <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
     <style>
         body {
             font-family: Arial, sans-serif;
-            background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('{{ url_for("static", filename="133658999964621821.jpg") }}') no-repeat center center fixed;
+            background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('{{ url_for('static', filename='133658999964621821.jpg') }}') no-repeat center center fixed;
             background-size: cover;
             color: #fff;
             margin: 0;
@@ -64,7 +64,7 @@
         <div class="command">
             <strong>/ping</strong>: Responds with Pong!
         </div>
-        <p>More commands will be added as development continues.</p>
+        <p>/ping</p>
         <h1>Invite My Discord Bot</h1>
         <p>Click the button below to invite the bot to your server!</p>
         <a href="https://discord.com/api/oauth2/authorize?client_id=1285549408087310408&permissions=8&scope=bot" target="_blank">
