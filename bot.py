@@ -89,8 +89,6 @@ async def botinfo_slash(interaction: nextcord.Interaction):
         'guilds': [guild.name for guild in bot.guilds],
         'prefix': bot.command_prefix,
         'description': bot.description,
-        'owner_id': bot.owner_id,
-        'owner': bot.owner,
         'latency': bot.latency
     }
     await interaction.response.send_message(f'```json\n{json.dumps(bot_info, indent=2)}\n```')
