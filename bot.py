@@ -57,6 +57,7 @@ if __name__ == "__main__":
     intents = discord.Intents.default()
     intents.messages = True
     intents.members = True  # Add this line to enable member intents
+    intents.message_content = True  # Enable message content intent
 
     bot = commands.Bot(command_prefix='!', intents=intents)
 
@@ -221,7 +222,11 @@ if __name__ == "__main__":
             }
             await interaction.response.send_message(f'```json\n{json.dumps(server_settings, indent=2)}\n```')
 
-    bot.add_cog(GeneralCommands(bot))
-    bot.add_cog(SlashCommands(bot))
+    import asyncio
 
-    bot.run(DISCORD_TOKEN)
+    async def main():
+        await bot.add_cog(GeneralCommands(bot))
+        await bot.add_cog(SlashCommands(bot))
+        await bot.start(DISCORD_TOKEN)
+
+    asyncio.run(main())
