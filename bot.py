@@ -111,8 +111,9 @@ async def serversettings_slash(interaction: nextcord.Interaction):
     if len(server_settings_json) > 2000:
         # Split the response into multiple messages
         parts = [server_settings_json[i:i+2000] for i in range(0, len(server_settings_json), 2000)]
-        for part in parts:
-            await interaction.response.send_message(f'```json\n{part}\n```')
+        await interaction.response.send_message(f'```json\n{parts[0]}\n```')
+        for part in parts[1:]:
+            await interaction.followup.send(f'```json\n{part}\n```')
     else:
         await interaction.response.send_message(f'```json\n{server_settings_json}\n```')
 
