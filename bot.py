@@ -52,6 +52,11 @@ def run_flask():
 @bot.event
 async def on_ready():
     logging.info(f'Logged in as {bot.user}')
+    try:
+        await bot.tree.sync()  # Synchronize slash commands with Discord
+        logging.info("Slash commands synchronized.")
+    except Exception as e:
+        logging.error(f"Error synchronizing slash commands: {e}")
 
 @bot.command()
 async def ping(ctx):
