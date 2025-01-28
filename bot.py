@@ -56,7 +56,7 @@ if __name__ == "__main__":
 
     intents = discord.Intents.default()
     intents.messages = True
-    intents.members = True  # Add this line to enable member intents
+    # intents.members = True  # Comment out this line to disable member intents
     intents.message_content = True  # Enable message content intent
 
     bot = commands.Bot(command_prefix='!', intents=intents)
