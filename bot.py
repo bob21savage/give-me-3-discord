@@ -107,7 +107,14 @@ async def serversettings_slash(interaction: nextcord.Interaction):
         'created_at': str(guild.created_at),
         'icon_url': str(guild.icon)  # Use 'icon' instead of 'icon_url'
     }
-    await interaction.response.send_message(f'```json\n{json.dumps(server_settings, indent=2)}\n```')
+    server_settings_json = json.dumps(server_settings, indent=2)
+    if len(server_settings_json) > 2000:
+        # Split the response into multiple messages
+        parts = [server_settings_json[i:i+2000] for i in range(0, len(server_settings_json), 2000)]
+        for part in parts:
+            await interaction.response.send_message(f'```json\n{part}\n```')
+    else:
+        await interaction.response.send_message(f'```json\n{server_settings_json}\n```')
 
 @bot.event
 async def on_message(message):
