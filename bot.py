@@ -53,7 +53,7 @@ def run_flask():
 async def on_ready():
     logging.info(f'Logged in as {bot.user}')
     try:
-        await bot.sync_commands()  # Synchronize slash commands with Discord
+        await bot.tree.sync()  # Synchronize slash commands with Discord
         logging.info("Slash commands synchronized.")
     except Exception as e:
         logging.error(f"Error synchronizing slash commands: {e}")
