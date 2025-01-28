@@ -105,7 +105,7 @@ async def serversettings_slash(interaction: nextcord.Interaction):
         'owner_id': guild.owner_id,
         'owner': guild.owner,
         'created_at': str(guild.created_at),
-        'icon_url': str(guild.icon_url)
+        'icon_url': str(guild.icon)  # Use 'icon' instead of 'icon_url'
     }
     await interaction.response.send_message(f'```json\n{json.dumps(server_settings, indent=2)}\n```')
 
