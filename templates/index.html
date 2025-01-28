@@ -4,11 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Discord Bot - In Development</title>
-    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <link rel="icon" href="{{ url_for("static", filename="favicon.ico") }}" type="image/x-icon">
     <style>
         body {
             font-family: Arial, sans-serif;
-            background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('133658999964621821.jpg') no-repeat center center fixed;
+            background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('{{ url_for("static", filename="133658999964621821.jpg") }}') no-repeat center center fixed;
             background-size: cover;
             color: #fff;
             margin: 0;
@@ -70,7 +70,6 @@
         <a href="https://discord.com/api/oauth2/authorize?client_id=1333803914553856062&permissions=8&scope=bot" target="_blank">
             <button>Invite Bot</button>
         </a>
-        <button>Invite Bot</button>
     </div>
 </body>
 </html>
