@@ -17,7 +17,7 @@ print(f'DISCORD_TOKEN: {DISCORD_TOKEN}')  # Print the token for debugging
 CLIENT_ID = os.getenv('ClientID')
 CLIENT_SECRET = os.getenv('ClientSecret')
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder='static')
 
 @app.route('/')
 def home():
@@ -56,8 +56,8 @@ if __name__ == "__main__":
 
     intents = discord.Intents.default()
     intents.messages = True
-    intents.message_content = False  # Disable message content intent
-    intents.members = False  # Disable member intents
+    intents.message_content = True  # Enable message content intent
+    intents.members = True  # Enable member intents
 
     bot = commands.Bot(command_prefix='!', intents=intents)
 
@@ -65,13 +65,14 @@ if __name__ == "__main__":
         r'^.*([A-Za-z0-9]+( [A-Za-z0-9]+)+).*[A-Za-z]+.*$',
         r'^<#(\d{17,20})>$',
         r'(\w+)\.?(dis(?:cord)?(?:app|merch|status)?)\.(com|g(?:d|g|ift)|(?:de(?:sign|v))|media|new|store|net)',
-        r'[a4]?+\s*[b8]+\s*c+\s*d+\s*[e3]?+\s*f+\s*[g9]+\s*h+\s*[i1l]?+\s*j+\s*k+\s*[l1i]+\s*(m|nn|rn)+\s*n+\s*[o0]?+\s*p+\s*q+\s*r+\s*[s5]+\s*[t7]+\s*[uv]?+\s*v+\s*(w|vv|uu)+\s*x+\s*y+\s*z+\s*0+\s*9+\s*8+\s*7+\s*6+\s*5+\s*4+\s*3+\s*2+\s*1+',
+        r'[a4]?+\s*[b8]+\s*c+\s*d+\s*[e3]?+\s*f+\s*g9]+\s*h+\s*[i1l]?+\s*j+\s*k+\s*[l1i]+\s*(m|nn|rn)+\s*n+\s*[o0]?+\s*p+\s*q+\s*r+\s*[s5]+\s*[t7]+\s*[uv]?+\s*v+\s*(w|vv|uu)+\s*x+\s*y+\s*z+\s*0+\s*9+\s*8+\s*7+\s*6+\s*5+\s*4+\s*3+\s*2+\s*1+',
         r'^https?:\/\/',
         r'^<@&(\d{17,20})>$',
         r'^<@!?(\\d{17,20})>$',
         r'^wss?:\/\/',
         r'https:\/\/(?:(?:canary|ptb).)?discord(?:app)?.com\/api(?:\/v\d+)?\/webhooks\/(\d+)\/([\w-]+)\/?$',
-        r'[^\f\n\r\t\v\u0020\u00a0\u1680\u2000-\u200a\u2028\u2029\u202f\u205f\u3000\ufeff]'
+        r'[^\n\r\t\v\u0020\u00a0\u1680\u2000-\u200a\u2028\u2029\u202f\u205f\u3000\ufeff]',
+        r'<@!?(\d{17,20})>'  # Added regex for user mentions
     ]
 
     @bot.event
@@ -83,9 +84,12 @@ if __name__ == "__main__":
         if message.author == bot.user:
             return
 
+        print(f"Received message: {message.content}")  # Debug print
+
         # Check if the message matches any of the regex patterns
         for pattern in patterns:
             if re.match(pattern, message.content):
+                print(f"Deleted message: {message.content} matching pattern: {pattern}")  # Debug print
                 await message.delete()  # Delete the message
                 break  # Exit the loop after deleting
 
@@ -112,57 +116,23 @@ if __name__ == "__main__":
 
         @commands.command(name='ping')
         async def ping(self, ctx):
-            await ctx.send('Pong!')
+            try:
+                await ctx.send('Pong!')
+            except Exception as e:
+                await ctx.send(f'An error occurred: {e}')  # Error handling
 
-        @commands.command(name='botinfo')
-        async def botinfo(self, ctx):
-            print("Botinfo command triggered")  # Debug print
-            bot_info = {
-                'username': self.bot.user.username,
-                'id': self.bot.user.id,
-                'created_at': str(self.bot.user.created_at),
-                'guilds': [guild.name for guild in self.bot.guilds],
-                'prefix': self.bot.command_prefix,
-                'description': self.bot.description,
-                'owner_id': self.bot.owner_id,
-                'owner': self.bot.owner,
-                'latency': self.bot.latency
-            }
-            await ctx.send(f'```json\n{json.dumps(bot_info, indent=2)}\n```')
-
-        @commands.command(name='serversettings')
-        async def serversettings(self, ctx):
-            print("Serversettings command triggered")  # Debug print
-            guild = ctx.guild
-            server_settings = {
-                'name': guild.name,
-                'id': guild.id,
-                'member_count': guild.member_count,
-                'roles': [role.name for role in guild.roles],
-                'channels': [channel.name for channel in guild.channels],
-                'owner_id': guild.owner_id,
-                'owner': guild.owner,
-                'created_at': str(guild.created_at),
-                'icon_url': str(guild.icon_url),
-                'banner_url': str(guild.banner_url),
-                'splash_url': str(guild.splash_url),
-                'description': guild.description,
-                'region': guild.region,
-                'afk_channel': guild.afk_channel,
-                'system_channel': guild.system_channel,
-                'rules_channel': guild.rules_channel,
-                'public_updates_channel': guild.public_updates_channel,
-                'preferred_locale': guild.preferred_locale,
-                'premium_tier': guild.premium_tier,
-                'premium_subscription_count': guild.premium_subscription_count,
-                'features': guild.features,
-                'max_members': guild.max_members,
-                'max_video_channel_users': guild.max_video_channel_users,
-                'max_presences': guild.max_presences,
-                'approximate_member_count': guild.approximate_member_count,
-                'approximate_presence_count': guild.approximate_presence_count
-            }
-            await ctx.send(f'```json\n{json.dumps(server_settings, indent=2)}\n```')
+        @commands.command(name='help')
+        async def help_command(self, ctx):
+            help_message = (
+                "Here are the commands you can use:\n"
+                "**Prefix Commands:**\n"
+                "!ping - Responds with Pong!\n"
+                "**Slash Commands:**\n"
+                "/ping - Responds with Pong!\n"
+                "/botinfo - Get information about the bot\n"
+                "/serversettings - Get information about the server"
+            )
+            await ctx.send(help_message)
 
     class SlashCommands(commands.Cog):
         def __init__(self, bot):
@@ -222,11 +192,12 @@ if __name__ == "__main__":
             }
             await interaction.response.send_message(f'```json\n{json.dumps(server_settings, indent=2)}\n```')
 
+    bot.add_cog(GeneralCommands(bot))
+    bot.add_cog(SlashCommands(bot))
+
     import asyncio
 
     async def main():
-        await bot.add_cog(GeneralCommands(bot))
-        await bot.add_cog(SlashCommands(bot))
         try:
             await bot.start(DISCORD_TOKEN)
         except discord.errors.PrivilegedIntentsRequired as e:
