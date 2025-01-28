@@ -1,4 +1,5 @@
-discord.py
+discord.py>=2.0.0
 Flask
 python-dotenv
 requests
+discord-py-slash-command
