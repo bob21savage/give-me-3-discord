@@ -83,7 +83,7 @@ async def ping_slash(interaction: nextcord.Interaction):
 @bot.slash_command(name='botinfo', description='Get information about the bot')
 async def botinfo_slash(interaction: nextcord.Interaction):
     bot_info = {
-        'username': bot.user.username,
+        'name': bot.user.name,  # Use 'name' instead of 'username'
         'id': bot.user.id,
         'created_at': str(bot.user.created_at),
         'guilds': [guild.name for guild in bot.guilds],
