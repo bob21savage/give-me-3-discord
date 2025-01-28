@@ -3,3 +3,4 @@ Flask
 python-dotenv
 requests
 discord-py-slash-command
+discord

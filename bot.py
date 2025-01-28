@@ -56,8 +56,8 @@ if __name__ == "__main__":
 
     intents = discord.Intents.default()
     intents.messages = True
-    # intents.members = True  # Comment out this line to disable member intents
     intents.message_content = True  # Enable message content intent
+    intents.members = True  # Enable member intents
 
     bot = commands.Bot(command_prefix='!', intents=intents)
 
@@ -227,6 +227,9 @@ if __name__ == "__main__":
     async def main():
         await bot.add_cog(GeneralCommands(bot))
         await bot.add_cog(SlashCommands(bot))
-        await bot.start(DISCORD_TOKEN)
+        try:
+            await bot.start(DISCORD_TOKEN)
+        except discord.errors.PrivilegedIntentsRequired as e:
+            print(f"Privileged intents required: {e}")
 
     asyncio.run(main())
