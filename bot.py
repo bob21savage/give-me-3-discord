@@ -33,11 +33,15 @@ intents.members = False  # Disable member intents
 APPLICATION_ID = '1285549408087310408'
 bot = commands.Bot(command_prefix='/', intents=intents, application_id=APPLICATION_ID)
 
+# Initialize Flask app
 app = Flask(__name__)
 
 @app.route('/')
 def home():
     return 'Hello, Flask is running on port 1500!'
+
+async def start_flask():
+    app.run(port=1500)
 
 @bot.event
 async def on_ready():
@@ -138,6 +142,7 @@ async def on_message(message):
 async def main():
     logging.info("Starting bot...")  # Debug print
     try:
+        # Start Flask server in a separate thread
         threading.Thread(target=app.run, kwargs={'port': 1500}).start()
         await bot.start(DISCORD_TOKEN)
     except Exception as e:
