@@ -7,6 +7,7 @@ from dotenv import load_dotenv  # Import dotenv to load environment variables
 import re
 from datetime import datetime, timedelta
 from flask import Flask, render_template
+import threading  # Import threading to run Flask in a separate thread
 import asyncio
 
 # Load environment variables from .env file
@@ -44,7 +45,7 @@ def home():
 def index():
     return render_template('index.html')  # Additional route for index if needed
 
-async def start_flask():
+def run_flask():
     port = int(os.environ.get('PORT', 5000))  # Use PORT environment variable
     app.run(host='0.0.0.0', port=port)
 
@@ -147,8 +148,8 @@ async def on_message(message):
 async def main():
     logging.info("Starting bot...")  # Debug print
     try:
-        # Start Flask server as a task
-        asyncio.create_task(start_flask())
+        # Start Flask server in a separate thread
+        threading.Thread(target=run_flask).start()
         await bot.start(DISCORD_TOKEN)
     except Exception as e:
         logging.error(f'Error starting bot: {e}')
