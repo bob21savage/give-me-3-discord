@@ -115,30 +115,6 @@ if __name__ == "__main__":
 
         await bot.process_commands(message)  # Ensure commands are processed
 
-    class GeneralCommands(commands.Cog):
-        def __init__(self, bot):
-            self.bot = bot
-
-        @commands.command(name='ping')
-        async def ping(self, ctx):
-            try:
-                await ctx.send('Pong!')
-            except Exception as e:
-                await ctx.send(f'An error occurred: {e}')  # Error handling
-
-        @commands.command(name='help')
-        async def help_command(self, ctx):
-            help_message = (
-                "Here are the commands you can use:\n"
-                "**Prefix Commands:**\n"
-                "!ping - Responds with Pong!\n"
-                "**Slash Commands:**\n"
-                "/ping - Responds with Pong!\n"
-                "/botinfo - Get information about the bot\n"
-                "/serversettings - Get information about the server"
-            )
-            await ctx.send(help_message)
-
     class SlashCommands(commands.Cog):
         def __init__(self, bot):
             self.bot = bot
@@ -197,26 +173,10 @@ if __name__ == "__main__":
             }
             await interaction.response.send_message(f'```json\n{json.dumps(server_settings, indent=2)}\n```')
 
-        @discord.app_commands.command(name='help', description='Shows available commands')
-        async def help_slash(self, interaction: discord.Interaction):
-            help_message = (
-                "Here are the commands you can use:\n"
-                "**Prefix Commands:**\n"
-                "!ping - Responds with Pong!\n"
-                "**Slash Commands:**\n"
-                "/ping - Responds with Pong!\n"
-                "/botinfo - Get information about the bot\n"
-                "/serversettings - Get information about the server"
-            )
-            await interaction.response.send_message(help_message)
-
     async def main():
-        await bot.add_cog(GeneralCommands(bot))
         await bot.add_cog(SlashCommands(bot))
-        try:
-            await bot.start(DISCORD_TOKEN)
-        except discord.errors.PrivilegedIntentsRequired as e:
-            print(f"Privileged intents required: {e}")
+        await bot.tree.sync()  # Synchronize slash commands
+        await bot.start(DISCORD_TOKEN)
 
     import asyncio
 
