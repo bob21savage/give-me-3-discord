@@ -60,7 +60,11 @@ if __name__ == "__main__":
     intents.members = True  # Enable member intents
 
     # Initialize the bot with the application ID
-    bot = commands.Bot(command_prefix='/', intents=intents, application_id=1285549408087310408)
+    bot = commands.Bot(command_prefix='/', intents=intents, application_id='1285549408087310408')
+
+    @bot.command()
+    async def ping(ctx):
+        await ctx.send('Pong!')
 
     patterns = [
         r'^.*([A-Za-z0-9]+( [A-Za-z0-9]+)+).*[A-Za-z]+.*$',

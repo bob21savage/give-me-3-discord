@@ -1,5 +1,5 @@
-discord.py>=2.0.0
-Flask
-python-dotenv
-requests
-discord-py-slash-command
+discord.py==2.4.0
+Flask>=2.2.5
+python-dotenv==0.21.0
+requests>=2.27.0
+discord-py-slash-command==1.0.0
