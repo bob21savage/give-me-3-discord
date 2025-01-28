@@ -78,6 +78,11 @@ if __name__ == "__main__":
     @bot.event
     async def on_ready():
         print(f'Logged in as {bot.user}')
+        try:
+            await bot.tree.sync()  # Synchronize slash commands with Discord
+            print("Slash commands synchronized.")
+        except Exception as e:
+            print(f"Error synchronizing slash commands: {e}")
 
     @bot.event
     async def on_message(message):
@@ -192,15 +197,14 @@ if __name__ == "__main__":
             }
             await interaction.response.send_message(f'```json\n{json.dumps(server_settings, indent=2)}\n```')
 
-    bot.add_cog(GeneralCommands(bot))
-    bot.add_cog(SlashCommands(bot))
-
-    import asyncio
-
     async def main():
+        await bot.add_cog(GeneralCommands(bot))
+        await bot.add_cog(SlashCommands(bot))
         try:
             await bot.start(DISCORD_TOKEN)
         except discord.errors.PrivilegedIntentsRequired as e:
             print(f"Privileged intents required: {e}")
+
+    import asyncio
 
     asyncio.run(main())
