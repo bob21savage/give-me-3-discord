@@ -9,7 +9,7 @@ import json
 
 load_dotenv()  # Load environment variables from .env file
 DISCORD_TOKEN = os.getenv('DISCORD_TOKEN')  # Get the token from the environment
-print(f'DISCORD_TOKEN: {DISCORD_TOKEN}')  # Verify that the token is loaded
+print(f'DISCORD_TOKEN: {DISCORD_TOKEN}')  # Print the token for debugging
 
 CLIENT_ID = os.getenv('ClientID')
 CLIENT_SECRET = os.getenv('ClientSecret')
@@ -46,58 +46,58 @@ def discord_redirect():
     return jsonify({'error': 'No code provided'}), 400
 
 def run_flask():
-    app.run(host='127.0.0.1', port=1500)
+    app.run(host='0.0.0.0', port=1500)
 
-flask_thread = threading.Thread(target=run_flask)
-flask_thread.start()
+if __name__ == "__main__":
+    threading.Thread(target=run_flask).start()
 
-intents = discord.Intents.default()
-intents.messages = True
-intents.members = True  # Add this line to enable member intents
+    intents = discord.Intents.default()
+    intents.messages = True
+    intents.members = True  # Add this line to enable member intents
 
-bot = commands.Bot(command_prefix='!', intents=intents)
+    bot = commands.Bot(command_prefix='!', intents=intents)
 
-@bot.event
-async def on_ready():
-    print(f'Logged in as {bot.user}')
+    @bot.event
+    async def on_ready():
+        print(f'Logged in as {bot.user}')
 
-@bot.event
-async def on_message(message):
-    if message.author == bot.user:
-        return
+    @bot.event
+    async def on_message(message):
+        if message.author == bot.user:
+            return
 
-    try:
-        await message.author.timeout(duration=180, reason="Automatic timeout for every message")
-        await message.channel.send(f'{message.author.mention} has been timed out for 3 minutes.')
-    except Exception as e:
-        print(f'Error timing out {message.author}: {e}')
+        try:
+            await message.author.timeout(duration=180, reason="Automatic timeout for every message")
+            await message.channel.send(f'{message.author.mention} has been timed out for 3 minutes.')
+        except Exception as e:
+            print(f'Error timing out {message.author}: {e}')
 
-    await bot.process_commands(message)
+        await bot.process_commands(message)
 
-@bot.command(name='ping')
-async def ping(ctx):
-    await ctx.send('Pong!')
+    @bot.command(name='ping')
+    async def ping(ctx):
+        await ctx.send('Pong!')
 
-@bot.command(name='botinfo')
-async def botinfo(ctx):
-    bot_info = {
-        'username': bot.user.username,
-        'id': bot.user.id,
-        'created_at': str(bot.user.created_at),
-        'guilds': [guild.name for guild in bot.guilds]
-    }
-    await ctx.send(f'```json\n{json.dumps(bot_info, indent=2)}\n```')
+    @bot.command(name='botinfo')
+    async def botinfo(ctx):
+        bot_info = {
+            'username': bot.user.username,
+            'id': bot.user.id,
+            'created_at': str(bot.user.created_at),
+            'guilds': [guild.name for guild in bot.guilds]
+        }
+        await ctx.send(f'```json\n{json.dumps(bot_info, indent=2)}\n```')
 
-@bot.command(name='serversettings')
-async def serversettings(ctx):
-    guild = ctx.guild
-    server_settings = {
-        'name': guild.name,
-        'id': guild.id,
-        'member_count': guild.member_count,
-        'roles': [role.name for role in guild.roles],
-        'channels': [channel.name for channel in guild.channels]
-    }
-    await ctx.send(f'```json\n{json.dumps(server_settings, indent=2)}\n```')
+    @bot.command(name='serversettings')
+    async def serversettings(ctx):
+        guild = ctx.guild
+        server_settings = {
+            'name': guild.name,
+            'id': guild.id,
+            'member_count': guild.member_count,
+            'roles': [role.name for role in guild.roles],
+            'channels': [channel.name for channel in guild.channels]
+        }
+        await ctx.send(f'```json\n{json.dumps(server_settings, indent=2)}\n```')
 
-bot.run(DISCORD_TOKEN)
+    bot.run(DISCORD_TOKEN)
