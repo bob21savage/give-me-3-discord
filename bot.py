@@ -52,7 +52,11 @@ def run_flask():
 async def on_ready():
     logging.info(f'Logged in as {bot.user}')
     try:
-        await bot.tree.sync(guild=nextcord.Object(id=0))  # Synchronize slash commands with Discord
+        if bot.guilds:
+            guild_id = bot.guilds[0].id  # Use the ID of the first guild the bot is in
+            await bot.tree.sync(guild=nextcord.Object(id=guild_id))
+        else:
+            logging.warning('The bot is not in any guilds.')
         logging.info("Slash commands synchronized.")
     except Exception as e:
         logging.error(f"Error synchronizing slash commands: {e}")
