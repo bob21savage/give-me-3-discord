@@ -66,17 +66,11 @@ async def ping(ctx):
 
 # Define regex patterns
 patterns = [
-    r'^.*([A-Za-z0-9]+( [A-Za-z0-9]+)+).*[A-Za-z]+.*$',
-    r'^<#(\d{17,20})>$',
-    r'(\w+)?\.?dis(?:cord)?(?:app|merch|status)?\.(com|g(?:d|g|ift)|(?:de(?:sign|v))|media|new|store|net)',
-    r'[a4]?+[b8]+c+d+[e3]?+f+g9]+h+[i1l]?+j+k+[l1i]+(m|nn|rn)+n+[o0]?+p+q+r+[s5]+[t7]+[uv]?+v+(w|vv|uu)+x+y+z+0+9+8+7+6+5+4+3+2+1+',
-    r'^https?:\/\/',
-    r'^<@&(\d{17,20})>$',
-    r'^<@!?(\\d{17,20})>$',
-    r'^wss?:\/\/',
-    r'https:\/\/(?:(?:canary|ptb).)?discord(?:app)?.com\/api(?:\/v\d+)?\/webhooks\/(\d+)\/([\w-]+)\/?$',
-    r'[^\f\n\r\t\v\u0020\u00a0\u1680\u2000-\u200a\u2028\u2029\u202f\u205f\u3000\ufeff]',
-    r'<@!?\d{17,20}>'  # Added regex for user mentions
+    r'https?://\S+',  # Matches any URL
+    r'\b(spam|advertisement|link|buy|free|click here|subscribe)\b',  # Matches common spam phrases
+    r'discord\.gg/\S+',  # Matches Discord invite links
+    r'<@!?\d{17,20}>',  # Matches user mentions
+    r'(.)\1{3,}'  # Matches any character repeated 4 or more times
 ]
 
 @bot.slash_command(name='ping', description='Responds with Pong!')
@@ -167,12 +161,13 @@ async def on_message(message):
         logging.info(f'Checking message: {message.content} against pattern: {pattern}')  # Debug print
         if re.match(pattern, message.content):
             try:
-                await message.delete()  # Delete the message
+                await message.delete()  # Delete the message from other users
                 logging.info(f'Deleted message from {message.author}: {message.content}')
             except Exception as e:
                 logging.error(f'Error deleting message from {message.author}: {e}')
             break  # Exit the loop after deleting the message
 
+    # Timeout logic remains unchanged
     # Check if the bot has permission to timeout the user
     if message.author.top_role >= message.guild.me.top_role:
         await message.channel.send("I cannot timeout this user because my role is lower.")
