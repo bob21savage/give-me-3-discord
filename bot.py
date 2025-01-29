@@ -45,7 +45,7 @@ def index():
 
 def run_flask():
     port = int(os.environ.get('PORT', 5000))  # Use PORT environment variable
-    app.run(host='0.0.0.0', port=port)
+    app.run(host='0.0.0.0', port=port, use_reloader=False)  # Disable reloader to prevent issues
 
 @bot.event
 async def on_ready():
@@ -158,35 +158,19 @@ async def restore_slash(interaction: nextcord.Interaction, backup_filename: str)
 
 @bot.event
 async def on_message(message):
+    # Ignore messages from the bot itself
     if message.author == bot.user:
         return
 
-    logging.info(f"Received message: {message.content}")  # Debug print
-
-    # Check if the message matches any of the regex patterns
+    # Check for matches against defined patterns
     for pattern in patterns:
         if re.match(pattern, message.content):
-            logging.info(f"Deleted message: {message.content} matching pattern: {pattern}")  # Debug print
             try:
                 await message.delete()  # Delete the message
+                logging.info(f'Deleted message from {message.author}: {message.content}')
             except Exception as e:
-                logging.error(f'Error deleting message: {e}')
-            break  # Exit the loop after deleting
-
-    # Check if the bot has permission to timeout the user
-    if message.author.top_role >= message.guild.me.top_role:
-        await message.channel.send("I cannot timeout this user because my role is lower.")
-        return
-
-    # Set the duration for the timeout (e.g., 3 minutes)
-    timeout_duration = timedelta(minutes=3)
-    timeout_until = datetime.utcnow() + timeout_duration  # Use utcnow() for an aware datetime
-
-    try:
-        await message.author.timeout(timeout_until, reason="Automatic timeout for every message")
-        await message.channel.send(f'{message.author.mention} has been timed out for 3 minutes.')
-    except Exception as e:
-        logging.error(f'Error timing out {message.author}: {e}')
+                logging.error(f'Error deleting message from {message.author}: {e}')
+            break  # Exit the loop after deleting the message
 
     await bot.process_commands(message)  # Ensure commands are processed
 
