@@ -164,6 +164,7 @@ async def on_message(message):
 
     # Check for matches against defined patterns
     for pattern in patterns:
+        logging.info(f'Checking message: {message.content} against pattern: {pattern}')  # Debug print
         if re.match(pattern, message.content):
             try:
                 await message.delete()  # Delete the message
