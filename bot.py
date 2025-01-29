@@ -131,8 +131,8 @@ async def backup_slash(interaction: nextcord.Interaction):
         'name': guild.name,
         'id': guild.id,
         'member_count': guild.member_count,
-        'roles': [role.name for role in guild.roles],
-        'channels': [channel.name for channel in guild.channels],
+        'roles': [{'name': role.name, 'permissions': role.permissions} for role in guild.roles],
+        'channels': [{'name': channel.name} for channel in guild.channels],
         'owner_id': guild.owner_id,
         'owner': guild.owner,
         'created_at': str(guild.created_at),
@@ -148,11 +148,24 @@ async def restore_slash(interaction: nextcord.Interaction, backup_filename: str)
     try:
         with open(backup_filename, 'r') as backup_file:
             server_settings = json.load(backup_file)
-        
-        # Restore server settings (this is a simplified example, actual restoration may require more steps)
+
+        # Restore server name
         guild = interaction.guild
         await guild.edit(name=server_settings['name'])
-        # Note: Restoring roles and channels would require more detailed handling
+
+        # Restore roles
+        for role_data in server_settings.get('roles', []):
+            existing_role = nextcord.utils.get(guild.roles, name=role_data['name'])
+            if existing_role is None:
+                await guild.create_role(name=role_data['name'], permissions=role_data['permissions'])
+            else:
+                await existing_role.edit(permissions=role_data['permissions'])
+
+        # Restore channels
+        for channel_data in server_settings.get('channels', []):
+            existing_channel = nextcord.utils.get(guild.text_channels, name=channel_data['name'])
+            if existing_channel is None:
+                await guild.create_text_channel(name=channel_data['name'])
 
         await interaction.response.send_message(f'Server settings have been restored from {backup_filename}')
     except FileNotFoundError:
