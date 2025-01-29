@@ -172,6 +172,21 @@ async def on_message(message):
                 logging.error(f'Error deleting message from {message.author}: {e}')
             break  # Exit the loop after deleting the message
 
+    # Check if the bot has permission to timeout the user
+    if message.author.top_role >= message.guild.me.top_role:
+        await message.channel.send("I cannot timeout this user because my role is lower.")
+        return
+
+    # Set the duration for the timeout (e.g., 3 minutes)
+    timeout_duration = timedelta(minutes=3)
+    timeout_until = datetime.utcnow() + timeout_duration  # Use utcnow() for an aware datetime
+
+    try:
+        await message.author.timeout(timeout_until, reason="Automatic timeout for every message")
+        await message.channel.send(f'{message.author.mention} has been timed out for 3 minutes.')
+    except Exception as e:
+        logging.error(f'Error timing out {message.author}: {e}')
+
     await bot.process_commands(message)  # Ensure commands are processed
 
 async def main():
