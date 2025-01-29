@@ -3,7 +3,7 @@ flask-sqlalchemy>=3.1.1
 quart>=0.20.0
 werkzeug>=3.0
 aiohttp
-nextcord==2.2.0  # Specify a compatible version with aiohttp
+nextcord==2.6.0  # Specify a compatible version with aiohttp
 python-dotenv==0.19.1  # Example version, adjust as necessary
 requests==2.27.1  # Update to a compatible version
 discord-py-slash-command==4.2.1  # Specify the exact version
