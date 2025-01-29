@@ -131,7 +131,7 @@ async def backup_slash(interaction: nextcord.Interaction):
         'name': guild.name,
         'id': guild.id,
         'member_count': guild.member_count,
-        'roles': [{'name': role.name, 'permissions': role.permissions.value} for role in guild.roles],  # Convert permissions to integer
+        'roles': [{'name': role.name, 'permissions': role.permissions.value} for role in guild.roles if not role.managed],  # Convert permissions to integer
         'channels': [{'name': channel.name} for channel in guild.text_channels],
         'owner_id': guild.owner_id,
         'owner': str(guild.owner),
@@ -139,7 +139,7 @@ async def backup_slash(interaction: nextcord.Interaction):
     }
 
     # Write the server settings to a backup file
-    backup_filename = 'backup.json'
+    backup_filename = f'backup_{guild.id}.json'
     with open(backup_filename, 'w') as backup_file:
         json.dump(server_settings, backup_file, indent=2)
 
