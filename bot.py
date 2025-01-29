@@ -1,5 +1,5 @@
 import nextcord
-from nextcord.ext import commands
+from nextcord.ext import commands, tasks
 import logging
 import os
 import json
@@ -48,6 +48,12 @@ def run_flask():
     port = int(os.environ.get('PORT', 5000))  # Use PORT environment variable
     app.run(host='0.0.0.0', port=port, use_reloader=False)  # Disable reloader to prevent issues
 
+# Background task example
+@tasks.loop(seconds=60)  # Adjust the interval as needed
+async def periodic_task():
+    # Perform your periodic task here, e.g., cleaning up data or checking status
+    print('Periodic task running...')
+
 @bot.event
 async def on_ready():
     logging.info(f'Logged in as {bot.user}')
@@ -56,6 +62,7 @@ async def on_ready():
         logging.info("Slash commands synchronized globally.")
     except Exception as e:
         logging.error(f"Error synchronizing slash commands: {e}")
+    periodic_task.start()  # Start the periodic task when the bot is ready
 
 @bot.command()
 async def ping(ctx):
@@ -80,6 +87,8 @@ async def ping_slash(interaction: nextcord.Interaction):
 
 @bot.slash_command(name='botinfo', description='Get detailed information about the bot')
 async def botinfo_slash(interaction: nextcord.Interaction):
+    await interaction.response.defer()  # Acknowledge the interaction immediately
+
     bot_info = {
         'name': bot.user.name,
         'version': '1.0.0',  # Replace with your bot's version
@@ -94,14 +103,16 @@ async def botinfo_slash(interaction: nextcord.Interaction):
     bot_info_json = json.dumps(bot_info, indent=2)
     if len(bot_info_json) > 2000:
         parts = [bot_info_json[i:i+1900] for i in range(0, len(bot_info_json), 1900)]
-        await interaction.response.send_message(f'```json\n{parts[0]}\n```')
+        await interaction.followup.send(f'```json\n{parts[0]}\n```')
         for part in parts[1:]:
             await interaction.followup.send(f'```json\n{part}\n```')
     else:
-        await interaction.response.send_message(f'```json\n{bot_info_json}\n```')
+        await interaction.followup.send(f'```json\n{bot_info_json}\n```')
 
 @bot.slash_command(name='serversettings', description='Get information about the server')
 async def serversettings_slash(interaction: nextcord.Interaction):
+    await interaction.response.defer()  # Acknowledge the interaction immediately
+
     guild = interaction.guild
     server_settings = {
         'name': guild.name,
@@ -118,14 +129,16 @@ async def serversettings_slash(interaction: nextcord.Interaction):
     if len(server_settings_json) > 2000:
         # Split the response into multiple messages
         parts = [server_settings_json[i:i+1900] for i in range(0, len(server_settings_json), 1900)]
-        await interaction.response.send_message(f'```json\n{parts[0]}\n```')
+        await interaction.followup.send(f'```json\n{parts[0]}\n```')
         for part in parts[1:]:
             await interaction.followup.send(f'```json\n{part}\n```')
     else:
-        await interaction.response.send_message(f'```json\n{server_settings_json}\n```')
+        await interaction.followup.send(f'```json\n{server_settings_json}\n```')
 
 @bot.slash_command(name='backup', description='Backup server settings')
 async def backup_slash(interaction: nextcord.Interaction):
+    await interaction.response.defer()  # Acknowledge the interaction immediately
+
     guild = interaction.guild
     server_settings = {
         'name': guild.name,
@@ -143,10 +156,12 @@ async def backup_slash(interaction: nextcord.Interaction):
     with open(backup_filename, 'w') as backup_file:
         json.dump(server_settings, backup_file, indent=2)
 
-    await interaction.response.send_message(f'Server settings have been backed up to {backup_filename}')
+    await interaction.followup.send(f'Server settings have been backed up to {backup_filename}')
 
 @bot.slash_command(name='restore', description='Restore the server settings from a backup')
 async def restore_slash(interaction: nextcord.Interaction, backup_filename: str):
+    await interaction.response.defer()  # Acknowledge the interaction immediately
+
     try:
         with open(backup_filename, 'r') as backup_file:
             server_settings = json.load(backup_file)
@@ -170,13 +185,20 @@ async def restore_slash(interaction: nextcord.Interaction, backup_filename: str)
             if existing_channel is None:
                 await guild.create_text_channel(name=channel_data['name'])
 
-        await interaction.response.send_message(f'Server settings have been restored from {backup_filename}')
+        await interaction.followup.send(f'Server settings have been restored from {backup_filename}')
     except FileNotFoundError:
-        if not interaction.response.is_done():  # Check if response is already sent
-            await interaction.response.send_message(f'Backup file {backup_filename} not found')
+        await interaction.followup.send(f'Backup file {backup_filename} not found')
     except Exception as e:
-        if not interaction.response.is_done():  # Check if response is already sent
-            await interaction.response.send_message(f'An error occurred while restoring the backup: {e}')
+        await interaction.followup.send(f'An error occurred while restoring the backup: {e}')
+
+@bot.slash_command(name='example', description='An example command')
+async def example_command(interaction: nextcord.Interaction):
+    await interaction.response.defer()  # Acknowledge immediately
+
+    # Perform your operations here
+    # Ensure they are efficient and do not block the event loop
+
+    await interaction.followup.send('Operation completed successfully.')
 
 # Define a rate limit (in seconds)
 RATE_LIMIT = 1.0  # 1 second
