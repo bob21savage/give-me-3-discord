@@ -161,7 +161,8 @@ async def restore_slash(interaction: nextcord.Interaction, backup_filename: str)
             if existing_role is None:
                 await guild.create_role(name=role_data['name'], permissions=nextcord.Permissions(role_data['permissions']))
             else:
-                await existing_role.edit(permissions=nextcord.Permissions(role_data['permissions']))
+                if not existing_role.managed:  # Check if the role is managed
+                    await existing_role.edit(permissions=nextcord.Permissions(role_data['permissions']))
 
         # Restore channels
         for channel_data in server_settings.get('channels', []):
