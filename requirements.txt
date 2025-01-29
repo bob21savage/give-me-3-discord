@@ -1,8 +1,10 @@
-Flask==2.0.3
-Werkzeug==2.0.3
-nextcord==2.4.0  # Specify the exact version you are using
+flask>=2.2.5
+flask-sqlalchemy>=3.1.1
+quart>=0.20.0
+werkzeug>=3.0
+aiohttp
+nextcord==2.2.0  # Specify a compatible version with aiohttp
 python-dotenv==0.19.1  # Example version, adjust as necessary
-requests==2.26.0  # Example version, adjust as necessary
-aiohttp==3.8.1  # Example version, adjust as necessary
+requests==2.27.1  # Update to a compatible version
 discord-py-slash-command==4.2.1  # Specify the exact version
 PyNaCl==1.5.0  # Specify the exact version
