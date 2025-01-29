@@ -78,18 +78,27 @@ patterns = [
 async def ping_slash(interaction: nextcord.Interaction):
     await interaction.response.send_message('Pong!')
 
-@bot.slash_command(name='botinfo', description='Get information about the bot')
+@bot.slash_command(name='botinfo', description='Get detailed information about the bot')
 async def botinfo_slash(interaction: nextcord.Interaction):
     bot_info = {
-        'name': bot.user.name,  # Use 'name' instead of 'username'
+        'name': bot.user.name,
+        'version': '1.0.0',  # Replace with your bot's version
+        'status': 'Running',  # Replace with your bot's status
+        'description': 'This bot does XYZ.',  # Add a description if needed
         'id': bot.user.id,
         'created_at': str(bot.user.created_at),
         'guilds': [guild.name for guild in bot.guilds],
         'prefix': bot.command_prefix,
-        'description': bot.description,
         'latency': bot.latency
     }
-    await interaction.response.send_message(f'```json\n{json.dumps(bot_info, indent=2)}\n```')
+    bot_info_json = json.dumps(bot_info, indent=2)
+    if len(bot_info_json) > 2000:
+        parts = [bot_info_json[i:i+1900] for i in range(0, len(bot_info_json), 1900)]
+        await interaction.response.send_message(f'```json\n{parts[0]}\n```')
+        for part in parts[1:]:
+            await interaction.followup.send(f'```json\n{part}\n```')
+    else:
+        await interaction.response.send_message(f'```json\n{bot_info_json}\n```')
 
 @bot.slash_command(name='serversettings', description='Get information about the server')
 async def serversettings_slash(interaction: nextcord.Interaction):
