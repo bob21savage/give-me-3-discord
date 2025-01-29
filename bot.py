@@ -10,6 +10,7 @@ from flask import Flask, render_template
 import threading  # Import threading to run Flask in a separate thread
 import asyncio
 from nextcord import Intents
+import time
 
 # Load environment variables from .env file
 load_dotenv()
@@ -150,15 +151,26 @@ async def restore_slash(interaction: nextcord.Interaction, backup_filename: str)
     except Exception as e:
         await interaction.response.send_message(f'An error occurred while restoring the backup: {e}')
 
+# Define a rate limit (in seconds)
+RATE_LIMIT = 1.0  # 1 second
+last_message_time = 0  # Timestamp of the last processed message
+
 @bot.event
 async def on_message(message):
+    global last_message_time
+
     # Ignore messages from the bot itself
     if message.author == bot.user:
         return
 
+    # Implement rate limiting
+    current_time = time.time()
+    if current_time - last_message_time < RATE_LIMIT:
+        return  # Skip processing if within rate limit
+    last_message_time = current_time
+
     # Check for matches against defined patterns
     for pattern in patterns:
-        logging.info(f'Checking message: {message.content} against pattern: {pattern}')  # Debug print
         if re.match(pattern, message.content):
             try:
                 await message.delete()  # Delete the message from other users
@@ -167,7 +179,6 @@ async def on_message(message):
                 logging.error(f'Error deleting message from {message.author}: {e}')
             break  # Exit the loop after deleting the message
 
-    # Timeout logic remains unchanged
     # Check if the bot has permission to timeout the user
     if message.author.top_role >= message.guild.me.top_role:
         await message.channel.send("I cannot timeout this user because my role is lower.")
