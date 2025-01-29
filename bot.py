@@ -124,23 +124,25 @@ async def serversettings_slash(interaction: nextcord.Interaction):
     else:
         await interaction.response.send_message(f'```json\n{server_settings_json}\n```')
 
-@bot.slash_command(name='backup', description='Backup the server settings')
+@bot.slash_command(name='backup', description='Backup server settings')
 async def backup_slash(interaction: nextcord.Interaction):
     guild = interaction.guild
     server_settings = {
         'name': guild.name,
         'id': guild.id,
         'member_count': guild.member_count,
-        'roles': [{'name': role.name, 'permissions': role.permissions} for role in guild.roles],
-        'channels': [{'name': channel.name} for channel in guild.channels],
+        'roles': [{'name': role.name, 'permissions': role.permissions.value} for role in guild.roles],  # Convert permissions to integer
+        'channels': [{'name': channel.name} for channel in guild.text_channels],
         'owner_id': guild.owner_id,
-        'owner': guild.owner,
+        'owner': str(guild.owner),
         'created_at': str(guild.created_at),
-        'icon_url': str(guild.icon)  # Use 'icon' instead of 'icon_url'
     }
-    backup_filename = f'backup_{guild.id}.json'
+
+    # Write the server settings to a backup file
+    backup_filename = 'backup.json'
     with open(backup_filename, 'w') as backup_file:
         json.dump(server_settings, backup_file, indent=2)
+
     await interaction.response.send_message(f'Server settings have been backed up to {backup_filename}')
 
 @bot.slash_command(name='restore', description='Restore the server settings from a backup')
@@ -157,9 +159,9 @@ async def restore_slash(interaction: nextcord.Interaction, backup_filename: str)
         for role_data in server_settings.get('roles', []):
             existing_role = nextcord.utils.get(guild.roles, name=role_data['name'])
             if existing_role is None:
-                await guild.create_role(name=role_data['name'], permissions=role_data['permissions'])
+                await guild.create_role(name=role_data['name'], permissions=nextcord.Permissions(role_data['permissions']))
             else:
-                await existing_role.edit(permissions=role_data['permissions'])
+                await existing_role.edit(permissions=nextcord.Permissions(role_data['permissions']))
 
         # Restore channels
         for channel_data in server_settings.get('channels', []):
