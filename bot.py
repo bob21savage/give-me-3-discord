@@ -172,9 +172,11 @@ async def restore_slash(interaction: nextcord.Interaction, backup_filename: str)
 
         await interaction.response.send_message(f'Server settings have been restored from {backup_filename}')
     except FileNotFoundError:
-        await interaction.response.send_message(f'Backup file {backup_filename} not found')
+        if not interaction.response.is_done():  # Check if response is already sent
+            await interaction.response.send_message(f'Backup file {backup_filename} not found')
     except Exception as e:
-        await interaction.response.send_message(f'An error occurred while restoring the backup: {e}')
+        if not interaction.response.is_done():  # Check if response is already sent
+            await interaction.response.send_message(f'An error occurred while restoring the backup: {e}')
 
 # Define a rate limit (in seconds)
 RATE_LIMIT = 1.0  # 1 second
