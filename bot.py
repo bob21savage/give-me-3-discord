@@ -9,6 +9,7 @@ from datetime import datetime, timedelta
 from flask import Flask, render_template
 import threading  # Import threading to run Flask in a separate thread
 import asyncio
+from nextcord import Intents
 
 # Load environment variables from .env file
 load_dotenv()
@@ -24,15 +25,12 @@ if DISCORD_TOKEN is None:
     logging.error('DISCORD_TOKEN is not set. Please check your .env file.')
     exit(1)
 
-# Define intents
-intents = nextcord.Intents.default()
-intents.messages = True
-intents.message_content = False  # Disable message content intent
-intents.members = False  # Disable member intents
+# Initialize intents
+intents = Intents.default()
+intents.messages = True  # Enable message intents
 
-# Initialize the bot
-APPLICATION_ID = '1285549408087310408'
-bot = commands.Bot(command_prefix='/', intents=intents, application_id=APPLICATION_ID)
+# Initialize Bot
+bot = commands.Bot(command_prefix='/', intents=intents)
 
 # Initialize Flask app
 app = Flask(__name__)
@@ -53,7 +51,7 @@ def run_flask():
 async def on_ready():
     logging.info(f'Logged in as {bot.user}')
     try:
-        await bot.tree.sync()  # Synchronize slash commands with Discord
+        await bot.tree.sync(guild=nextcord.Object(id=0))  # Synchronize slash commands with Discord
         logging.info("Slash commands synchronized.")
     except Exception as e:
         logging.error(f"Error synchronizing slash commands: {e}")
