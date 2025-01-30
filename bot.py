@@ -74,8 +74,8 @@ async def ping(ctx):
 
 async def blocking_code(message):
     # Define regex patterns for automod
-    pattern1 = r'[^\n\r\t\v\u0020\u00a0\u1680\u2000-\u200a\u2028\u2029\u202f\u205f\u3000\ufeff]'
-    pattern2 = r'^.*([A-Za-z0-9]+( [A-Za-z0-9]+)+).*[A-Za-z]+.*$'
+    pattern1 = r'some_regex_pattern1'  # Define your first pattern here
+    pattern2 = r'some_regex_pattern2'  # Define your second pattern here
     # Additional patterns
     patterns = [
         r'https?://\S+',  # Matches any URL
@@ -214,6 +214,14 @@ async def example_command(interaction: nextcord.Interaction):
 # Define a rate limit (in seconds)
 RATE_LIMIT = 1.0  # 1 second
 last_message_time = 0  # Timestamp of the last processed message
+
+patterns = [
+    r'https?://\S+',  # Matches any URL
+    r'\b(spam|advertisement|link|buy|free|click here|subscribe)\b',  # Matches common spam phrases
+    r'discord\.gg/\S+',  # Matches Discord invite links
+    r'<@!?\d{17,20}>',  # Matches user mentions
+    r'(.)\1{3,}'  # Matches any character repeated 4 or more times
+]
 
 @bot.event
 async def on_message(message):
