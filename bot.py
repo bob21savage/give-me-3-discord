@@ -72,14 +72,25 @@ async def ping(ctx):
     except Exception as e:
         logging.error(f'Error sending ping response: {e}')
 
-# Define regex patterns
-patterns = [
-    r'https?://\S+',  # Matches any URL
-    r'\b(spam|advertisement|link|buy|free|click here|subscribe)\b',  # Matches common spam phrases
-    r'discord\.gg/\S+',  # Matches Discord invite links
-    r'<@!?\d{17,20}>',  # Matches user mentions
-    r'(.)\1{3,}'  # Matches any character repeated 4 or more times
-]
+async def blocking_code(message):
+    # Define regex patterns for automod
+    pattern1 = r'[^\n\r\t\v\u0020\u00a0\u1680\u2000-\u200a\u2028\u2029\u202f\u205f\u3000\ufeff]'
+    pattern2 = r'^.*([A-Za-z0-9]+( [A-Za-z0-9]+)+).*[A-Za-z]+.*$'
+    # Additional patterns
+    patterns = [
+        r'https?://\S+',  # Matches any URL
+        r'\b(spam|advertisement|link|buy|free|click here|subscribe)\b',  # Matches common spam phrases
+        r'discord\.gg/\S+',  # Matches Discord invite links
+        r'<@!?\d{17,20}>',  # Matches user mentions
+        r'(.)\1{3,}'  # Matches any character repeated 4 or more times
+    ]
+
+    # Check if the message matches any pattern
+    if (re.search(pattern1, message.content) or 
+        re.search(pattern2, message.content) or 
+        any(re.search(pattern, message.content) for pattern in patterns)):
+        await message.delete()  # Delete the message
+        await message.channel.send('Your message was blocked due to inappropriate content.')  # Optional warning
 
 @bot.slash_command(name='ping', description='Responds with Pong!')
 async def ping_slash(interaction: nextcord.Interaction):
@@ -211,6 +222,9 @@ async def on_message(message):
     # Ignore messages from the bot itself
     if message.author == bot.user:
         return
+
+    # Automod functionality
+    await blocking_code(message)  # Use the blocking code
 
     # Implement rate limiting
     current_time = time.time()
