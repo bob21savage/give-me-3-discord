@@ -87,6 +87,7 @@ async def ping(ctx):
 async def blocking_code(message):
     # Check if the message matches any pattern
     if any(re.search(pattern, message.content) for pattern in patterns):
+        logging.info(f'Deleting message from {message.author}: {message.content}')  # Log the deletion
         await message.delete()  # Delete the message
         await message.channel.send('Your message was blocked due to inappropriate content.')  # Optional warning
 
