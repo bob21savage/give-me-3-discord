@@ -48,6 +48,18 @@ def run_flask():
     port = int(os.environ.get('PORT', 5000))  # Use PORT environment variable
     app.run(host='0.0.0.0', port=port, use_reloader=False)  # Disable reloader to prevent issues
 
+# Define regex patterns for automod globally
+patterns = [
+    r'https?://\S+',  # Matches any URL
+    r'\b(spam|advertisement|link|buy|free|click here|subscribe)\b',  # Matches common spam phrases
+    r'discord\.gg/\S+',  # Matches Discord invite links
+    r'<@!?\d{17,20}>',  # Matches user mentions
+    r'(.)\1{3,}',  # Matches any character repeated 4 or more times
+    r'[^\f\n\r\t\v\u0020\u00a0\u1680\u2000-\u200a\u2028\u2029\u202f\u205f\u3000\ufeff]',  # Your first pattern
+    r'^.*([A-Za-z0-9]+( [A-Za-z0-9]+)+).*[A-Za-z]+.*$',  # Your second pattern
+    # Add any additional patterns here
+]
+
 # Background task example
 @tasks.loop(seconds=60)  # Adjust the interval as needed
 async def periodic_task():
@@ -73,22 +85,8 @@ async def ping(ctx):
         logging.error(f'Error sending ping response: {e}')
 
 async def blocking_code(message):
-    # Define regex patterns for automod
-    pattern1 = r'some_regex_pattern1'  # Define your first pattern here
-    pattern2 = r'some_regex_pattern2'  # Define your second pattern here
-    # Additional patterns
-    patterns = [
-        r'https?://\S+',  # Matches any URL
-        r'\b(spam|advertisement|link|buy|free|click here|subscribe)\b',  # Matches common spam phrases
-        r'discord\.gg/\S+',  # Matches Discord invite links
-        r'<@!?\d{17,20}>',  # Matches user mentions
-        r'(.)\1{3,}'  # Matches any character repeated 4 or more times
-    ]
-
     # Check if the message matches any pattern
-    if (re.search(pattern1, message.content) or 
-        re.search(pattern2, message.content) or 
-        any(re.search(pattern, message.content) for pattern in patterns)):
+    if any(re.search(pattern, message.content) for pattern in patterns):
         await message.delete()  # Delete the message
         await message.channel.send('Your message was blocked due to inappropriate content.')  # Optional warning
 
@@ -214,14 +212,6 @@ async def example_command(interaction: nextcord.Interaction):
 # Define a rate limit (in seconds)
 RATE_LIMIT = 1.0  # 1 second
 last_message_time = 0  # Timestamp of the last processed message
-
-patterns = [
-    r'https?://\S+',  # Matches any URL
-    r'\b(spam|advertisement|link|buy|free|click here|subscribe)\b',  # Matches common spam phrases
-    r'discord\.gg/\S+',  # Matches Discord invite links
-    r'<@!?\d{17,20}>',  # Matches user mentions
-    r'(.)\1{3,}'  # Matches any character repeated 4 or more times
-]
 
 @bot.event
 async def on_message(message):
