@@ -210,6 +210,26 @@ async def example_command(interaction: nextcord.Interaction):
 
     await interaction.followup.send('Operation completed successfully.')
 
+@bot.slash_command(name='global_announcement', description='Send a global announcement to all servers')
+async def global_announcement(interaction: nextcord.Interaction, message: str):
+    await interaction.response.defer()  # Acknowledge the interaction immediately
+
+    # Iterate through all guilds the bot is in
+    for guild in bot.guilds:
+        try:
+            # Check if a notification channel already exists
+            notification_channel = nextcord.utils.get(guild.text_channels, name="notifications")
+            if notification_channel is None:
+                # Create the notification channel if it doesn't exist
+                notification_channel = await guild.create_text_channel(name="notifications")
+
+            # Send the announcement message to the notification channel
+            await notification_channel.send(f"📢 **Global Announcement:** {message}")
+        except Exception as e:
+            logging.error(f"Error sending announcement to guild {guild.name} ({guild.id}): {e}")
+
+    await interaction.followup.send("Global announcement sent to all servers.")
+
 # Define a rate limit (in seconds)
 RATE_LIMIT = 1.0  # 1 second
 last_message_time = 0  # Timestamp of the last processed message
