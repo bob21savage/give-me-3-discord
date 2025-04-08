@@ -84,6 +84,15 @@ async def ping(ctx):
     except Exception as e:
         logging.error(f'Error sending ping response: {e}')
 
+@bot.command()
+async def sync(ctx):
+    try:
+        await bot.tree.sync()
+        await ctx.send("Slash commands synced successfully!")
+    except Exception as e:
+        await ctx.send(f"Error syncing commands: {e}")
+        logging.error(f"Error syncing commands: {e}")
+
 async def blocking_code(message):
     # Check if the message matches any pattern
     if any(re.search(pattern, message.content) for pattern in patterns):
@@ -201,15 +210,6 @@ async def restore_slash(interaction: nextcord.Interaction, backup_filename: str)
     except Exception as e:
         await interaction.followup.send(f'An error occurred while restoring the backup: {e}')
 
-@bot.slash_command(name='example', description='An example command')
-async def example_command(interaction: nextcord.Interaction):
-    await interaction.response.defer()  # Acknowledge immediately
-
-    # Perform your operations here
-    # Ensure they are efficient and do not block the event loop
-
-    await interaction.followup.send('Operation completed successfully.')
-
 @bot.slash_command(name='global_announcement', description='Send a global announcement to all servers')
 async def global_announcement(interaction: nextcord.Interaction, message: str):
     await interaction.response.defer()  # Acknowledge the interaction immediately
@@ -229,6 +229,15 @@ async def global_announcement(interaction: nextcord.Interaction, message: str):
             logging.error(f"Error sending announcement to guild {guild.name} ({guild.id}): {e}")
 
     await interaction.followup.send("Global announcement sent to all servers.")
+
+@bot.slash_command(name='example', description='An example command')
+async def example_command(interaction: nextcord.Interaction):
+    await interaction.response.defer()  # Acknowledge immediately
+
+    # Perform your operations here
+    # Ensure they are efficient and do not block the event loop
+
+    await interaction.followup.send('Operation completed successfully.')
 
 # Define a rate limit (in seconds)
 RATE_LIMIT = 1.0  # 1 second
